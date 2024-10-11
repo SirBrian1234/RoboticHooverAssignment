@@ -1,4 +1,4 @@
-package org.kostiskag.room;
+package org.kostiskag.topology;
 
 import java.math.BigInteger;
 import java.util.Set;
@@ -65,8 +65,8 @@ public class TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl implements T
      *
      * @param instructions
      */
-    public void calculateRouteInstructions(String instructions) {
-
+    public CalculateRouteInstructionsResponse calculateRouteInstructions(String instructions) {
+        return new CalculateRouteInstructionsResponse(1,1,1);
     }
 
 }
