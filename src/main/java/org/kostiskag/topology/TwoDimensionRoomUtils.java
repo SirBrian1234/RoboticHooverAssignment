@@ -38,6 +38,10 @@ final class TwoDimensionRoomUtils {
         } else if (y >= height) {
             y = height-1;
         }
-        return new TwoDimensionPosition(x, y);
+
+        //create a new coordinate pair only when changed
+        return x == position.x() && y == position.y()?
+            position:
+            new TwoDimensionPosition(x, y);
     }
 }

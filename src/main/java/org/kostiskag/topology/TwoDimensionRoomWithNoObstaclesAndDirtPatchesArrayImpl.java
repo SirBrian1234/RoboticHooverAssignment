@@ -1,11 +1,37 @@
 package org.kostiskag.topology;
 
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 
 public class TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl implements TwoDimensionRoomWithNoObstaclesAndDirtPatches {
 
+    private enum RouteInstruction {
+        NORTH,
+        SOUTH,
+        WEST,
+        EAST;
+
+        private static RouteInstruction fromValue(char value) {
+            if (value == 'N') {
+                return RouteInstruction.NORTH;
+            } else if (value == 'S') {
+                return RouteInstruction.SOUTH;
+            } else if (value == 'W') {
+                return RouteInstruction.WEST;
+            } else if (value == 'E') {
+                return RouteInstruction.EAST;
+            } else {
+                return null;
+            }
+        }
+    }
+
     private static final int MAX_ALLOWED_ROOM_SIZE = 500_000_000;
+    private static final String ROUTE_INSTRUCTIONS_PATTERN = "[NSWE]+";
 
     private final int width;
     private final int height;
@@ -36,6 +62,7 @@ public class TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl implements T
                 this.room[x][y] = TileType.PLAIN;
             }
         }
+        System.out.println("Created a room of size: "+this.width+", "+this.height);
 
         //we can recover from a bad dirt tile
         //but we will not try to rectify it
@@ -66,7 +93,52 @@ public class TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl implements T
      * @param instructions
      */
     public CalculateRouteInstructionsResponse calculateRouteInstructions(String instructions) {
-        return new CalculateRouteInstructionsResponse(1,1,1);
+        //validate instructions
+        if (!instructions.matches(ROUTE_INSTRUCTIONS_PATTERN)) {
+            //instructions were unclear
+            System.out.println("The given path instructions were unclear, please correct them by using only the 'N', 'S', 'W', 'E' symbols");
+            return new CalculateRouteInstructionsResponse(this.hooverStartingPoint,0);
+        }
+
+        List<RouteInstruction> instructionList = instructions.chars()
+                .mapToObj(i -> RouteInstruction.fromValue((char)i))
+                .collect(Collectors.toList());
+
+        System.out.println("Starting from:"+ this.hooverStartingPoint);
+        int numOfTilesCleaned = 0;
+        if (this.room[this.hooverStartingPoint.x()][this.hooverStartingPoint.y()] == TileType.PATCH) {
+            System.out.println("Hoover's starting point fell into a patch, the patch is cleaned");
+            numOfTilesCleaned++;
+        }
+
+        var currentPoint = this.hooverStartingPoint;
+        for(var instruction: instructionList) {
+            TwoDimensionPosition nextPoint;
+            if (instruction == RouteInstruction.NORTH) {
+                nextPoint = new TwoDimensionPosition(currentPoint.x(), currentPoint.y()+1);
+            } else if (instruction == RouteInstruction.SOUTH) {
+                nextPoint = new TwoDimensionPosition(currentPoint.x(), currentPoint.y()-1);
+            } else if (instruction == RouteInstruction.WEST) {
+                nextPoint = new TwoDimensionPosition(currentPoint.x()-1, currentPoint.y());
+            } else {
+                nextPoint = new TwoDimensionPosition(currentPoint.x()+1, currentPoint.y());
+            }
+            System.out.println("Moving to :" + nextPoint);
+
+            var corrected = TwoDimensionRoomUtils.rectifyCoordinatePair(this.width, this.height, nextPoint);
+            if (!nextPoint.equals(corrected)) {
+                nextPoint = corrected;
+                System.out.println("Hoover hit a wall and cannot move further:" + nextPoint);
+            }
+
+            if (this.room[nextPoint.x()][nextPoint.y()] == TileType.PATCH) {
+                System.out.println("Cleaning  :"+nextPoint);
+                numOfTilesCleaned++;
+            }
+            currentPoint = nextPoint;
+        }
+
+        return new CalculateRouteInstructionsResponse(currentPoint, numOfTilesCleaned);
     }
 
 }

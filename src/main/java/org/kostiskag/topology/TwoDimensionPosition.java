@@ -1,5 +1,7 @@
 package org.kostiskag.topology;
 
+import org.json.JSONArray;
+
 import java.util.Objects;
 
 /**
@@ -14,6 +16,11 @@ import java.util.Objects;
  * @param y
  */
 public record TwoDimensionPosition(int x, int y) {
+
+    public static TwoDimensionPosition getTwoDimensionPositionFromJSONArrayOfIntCoordinates(JSONArray jsonArray) {
+        return new TwoDimensionPosition(jsonArray.getInt(0),
+                jsonArray.getInt(1));
+    }
 
     public TwoDimensionPosition(int x, int y) {
         this.x = x;
