@@ -1,9 +1,7 @@
 package org.kostiskag.topology;
 
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -104,9 +102,12 @@ public class TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl implements T
                 .mapToObj(i -> RouteInstruction.fromValue((char)i))
                 .collect(Collectors.toList());
 
+        List<TwoDimensionPosition> cleanedTiles = new ArrayList<>();
+
         System.out.println("Starting from:"+ this.hooverStartingPoint);
         int numOfTilesCleaned = 0;
         if (this.room[this.hooverStartingPoint.x()][this.hooverStartingPoint.y()] == TileType.PATCH) {
+            cleanedTiles.add(this.hooverStartingPoint);
             System.out.println("Hoover's starting point fell into a patch, the patch is cleaned");
             numOfTilesCleaned++;
         }
@@ -131,8 +132,11 @@ public class TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl implements T
                 System.out.println("Hoover hit a wall and cannot move further:" + nextPoint);
             }
 
-            if (this.room[nextPoint.x()][nextPoint.y()] == TileType.PATCH) {
-                System.out.println("Cleaning  :"+nextPoint);
+            if (this.room[nextPoint.x()][nextPoint.y()] == TileType.PATCH
+                    && !cleanedTiles.contains(nextPoint)) {
+
+                cleanedTiles.add(nextPoint);
+                System.out.println("Cleaning  :" + nextPoint);
                 numOfTilesCleaned++;
             }
             currentPoint = nextPoint;

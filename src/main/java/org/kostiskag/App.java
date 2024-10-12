@@ -39,31 +39,51 @@ public class App {
         }
 
         //sanitize input elements phase
-        JSONObject scriptJsonObject = new JSONObject(scriptStr);
+        TwoDimensionPosition roomSizeDimensions;
+        TwoDimensionPosition start;
+        Set<TwoDimensionPosition> tiles;
+        String instructions;
+        try {
+            JSONObject scriptJsonObject = new JSONObject(scriptStr);
 
-        JSONArray roomSize = scriptJsonObject.getJSONArray("roomSize");
-        JSONArray coords = scriptJsonObject.getJSONArray("coords");
-        JSONArray patches = scriptJsonObject.getJSONArray("patches");
-        String instructions = (String) scriptJsonObject.get("instructions");
-
-        List<TwoDimensionPosition> li = new LinkedList<>();
-        for(int i=0; i < patches.length(); i++) {
-            JSONArray coordinatePair = patches.getJSONArray(i);
-            TwoDimensionPosition patchPosition = getTwoDimensionPositionFromJSONArrayOfIntCoordinates(coordinatePair);
-            if (li.contains(patchPosition)) {
-                System.out.println("Found duplicate patch tile with coordinates: "+patchPosition+", will not be added again");
+            JSONArray roomSize = scriptJsonObject.getJSONArray("roomSize");
+            if (roomSize.length() != 2) {
+                throw  new JSONException("more than two dimensions found in 'roomSize'");
             }
-            li.add(patchPosition);
-        }
+            JSONArray coords = scriptJsonObject.getJSONArray("coords");
+            if (coords.length() != 2) {
+                throw  new JSONException("more than two dimensions found in 'coords'");
+            }
+            JSONArray patches = scriptJsonObject.getJSONArray("patches");
+            instructions = (String) scriptJsonObject.get("instructions");
 
-        TwoDimensionPosition roomSizeDimensions = getTwoDimensionPositionFromJSONArrayOfIntCoordinates(roomSize);
-        TwoDimensionPosition start = getTwoDimensionPositionFromJSONArrayOfIntCoordinates(coords);
-        Set<TwoDimensionPosition> tiles = new HashSet<>(li);
+            List<TwoDimensionPosition> li = new LinkedList<>();
+            for (int i = 0; i < patches.length(); i++) {
+                JSONArray coordinatePair = patches.getJSONArray(i);
+                if (coordinatePair.length() != 2) {
+                    throw  new JSONException("more than two dimensions found in 'coordinatePair' no "+i);
+                }
+                TwoDimensionPosition patchPosition = getTwoDimensionPositionFromJSONArrayOfIntCoordinates(coordinatePair);
+                if (li.contains(patchPosition)) {
+                    System.out.println("Found duplicate patch tile with coordinates: " + patchPosition + ", will not be added again");
+                }
+                li.add(patchPosition);
+            }
+
+            roomSizeDimensions = getTwoDimensionPositionFromJSONArrayOfIntCoordinates(roomSize);
+            start = getTwoDimensionPositionFromJSONArrayOfIntCoordinates(coords);
+            tiles = new HashSet<>(li);
+
+        } catch (Exception e) {
+            System.out.println("The data script provided was not valid");
+            System.out.println("App wil exit");
+            throw new RuntimeException(e);
+        }
         //end of sanitization phase
 
-        TwoDimensionRoomWithNoObstaclesAndDirtPatches room = null;
         try {
-            room = new TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl(start, tiles, roomSizeDimensions.x(), roomSizeDimensions.y());
+            TwoDimensionRoomWithNoObstaclesAndDirtPatches room =
+                    new TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl(start, tiles, roomSizeDimensions.x(), roomSizeDimensions.y());
             CalculateRouteInstructionsResponse result = room.calculateRouteInstructions(instructions);
 
             System.out.println("Output was calculated to: ");
