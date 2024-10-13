@@ -43,21 +43,22 @@ public class TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl implements T
 
     private final TwoDimensionPosition hooverStartingPoint;
 
-    public TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl(TwoDimensionPosition hooverStartingPoint, Set<TwoDimensionPosition> dirtPatches, int width, int height) throws RoomException {
-        this(hooverStartingPoint, dirtPatches, width, height, false);
+    public TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl(TwoDimensionPosition hooverStartingPoint, Set<TwoDimensionPosition> dirtPatches, int width, int height, Integer boardSize) throws RoomException {
+        this(hooverStartingPoint, dirtPatches, width, height, boardSize, false);
     }
 
-    public TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl(TwoDimensionPosition hooverStartingPoint, Set<TwoDimensionPosition> dirtPatches, int width, int height, boolean resetBoardAfterRoute) throws RoomException {
+    public TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl(TwoDimensionPosition hooverStartingPoint, Set<TwoDimensionPosition> dirtPatches, int width, int height, Integer boardSize, boolean resetBoardAfterRoute) throws RoomException {
         //we can't recover from bad dimensions
         //element construction will fail
+        int maxAllowedRoomSize = Objects.requireNonNullElse(boardSize, MAX_ALLOWED_ROOM_SIZE);
         if (!TwoDimensionRoomUtils.calculateValidRoomDimension(width)) {
             throw new RoomException("Could not init Room. The given room width was out of bounds");
         }
         if (!TwoDimensionRoomUtils.calculateValidRoomDimension(height)) {
             throw new RoomException("Could not init Room. The given room height was out of bounds");
         }
-        if (BigInteger.valueOf(width).multiply(BigInteger.valueOf(height)).compareTo(BigInteger.valueOf(MAX_ALLOWED_ROOM_SIZE)) > 0) {
-            throw new RoomException("Could not init Room. The given room exceeds the maximum allowed room size of "+MAX_ALLOWED_ROOM_SIZE+" floor tiles");
+        if (BigInteger.valueOf(width).multiply(BigInteger.valueOf(height)).compareTo(BigInteger.valueOf(maxAllowedRoomSize)) > 0) {
+            throw new RoomException("Could not init Room. The given room exceeds the maximum allowed room size of "+maxAllowedRoomSize+" floor tiles");
         }
 
         this.resetBoardAfterRoute = resetBoardAfterRoute;

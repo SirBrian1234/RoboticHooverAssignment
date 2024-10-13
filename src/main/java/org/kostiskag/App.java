@@ -24,9 +24,18 @@ import static org.kostiskag.topology.TwoDimensionPosition.getTwoDimensionPositio
 public class App {
     public static void main(String[] args) {
 
-        if (args.length != 1) {
+        if (args.length < 1) {
             System.out.println("Please provide a valid file path.");
             return;
+        }
+        if (args.length > 3) {
+            System.out.println("Too many arguments were given.");
+            return;
+        }
+
+        Integer boardSize = null;
+        if (args.length == 2) {
+            boardSize = Integer.parseInt(args[1]);
         }
 
         System.out.println("Reading script from file");
@@ -83,7 +92,7 @@ public class App {
 
         try {
             TwoDimensionRoomWithNoObstaclesAndDirtPatches room =
-                    new TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl(start, tiles, roomSizeDimensions.x(), roomSizeDimensions.y());
+                    new TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl(start, tiles, roomSizeDimensions.x(), roomSizeDimensions.y(), boardSize);
             CalculateRouteInstructionsResponse result = room.calculateRouteInstructions(instructions);
 
             System.out.println("Output was calculated to: ");

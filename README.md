@@ -35,3 +35,8 @@ java -jar robotichooverassignment-1.0-SNAPSHOT.jar inputCoordinateFile.json
 ## Performance
 
 The application may generate a 2D room of up to **500.000.000** total spots. If a bigger room is defined, the application will prevent the user from executing the script file.
+To use a bigger room please define the desired size in total tiles after the given input file.
+If bigger rooms have to be defined please also use the -Xmx option to ensure the necessary memory space exists for the desired room size.
+```
+java -Xmx2048m -jar robotichooverassignment-1.0-SNAPSHOT.jar inputCoordinateFile.json 5000000
+```
