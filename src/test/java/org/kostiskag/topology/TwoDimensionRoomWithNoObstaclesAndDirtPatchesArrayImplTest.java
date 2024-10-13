@@ -17,7 +17,7 @@ public class TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImplTest {
 
         TwoDimensionRoomWithNoObstaclesAndDirtPatches room = null;
         try {
-            room = new TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl(start, tiles, 10, 500_000);
+            room = new TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl(start, tiles, 10, 500_000, null);
 
             CalculateRouteInstructionsResponse result = room.calculateRouteInstructions("SSSNNN04141");
             System.out.println(result.toJson());
@@ -41,7 +41,7 @@ public class TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImplTest {
 
         TwoDimensionRoomWithNoObstaclesAndDirtPatches room = null;
         try {
-            room = new TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl(start, tiles, 10, 500_000, true);
+            room = new TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl(start, tiles, 10, 500_000, null,true );
 
             CalculateRouteInstructionsResponse result = room.calculateRouteInstructions("EWNNNNEEEE");
             System.out.println(result.toJson());
