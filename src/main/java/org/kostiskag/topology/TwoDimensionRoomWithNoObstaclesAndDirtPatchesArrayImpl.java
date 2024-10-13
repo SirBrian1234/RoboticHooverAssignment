@@ -7,6 +7,11 @@ import java.util.stream.Collectors;
 
 public class TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl implements TwoDimensionRoomWithNoObstaclesAndDirtPatches {
 
+    private enum TileType {
+        PLAIN,
+        PATCH;
+    }
+
     private enum RouteInstruction {
         NORTH,
         SOUTH,
