@@ -31,6 +31,7 @@ public class TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl implements T
     private static final int MAX_ALLOWED_ROOM_SIZE = 500_000_000;
     private static final String ROUTE_INSTRUCTIONS_PATTERN = "[NSWE]+";
 
+    private final boolean resetBoardAfterRoute;
     private final int width;
     private final int height;
     private final TileType[][] room;
@@ -38,7 +39,10 @@ public class TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl implements T
     private final TwoDimensionPosition hooverStartingPoint;
 
     public TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl(TwoDimensionPosition hooverStartingPoint, Set<TwoDimensionPosition> dirtPatches, int width, int height) throws RoomException {
+        this(hooverStartingPoint, dirtPatches, width, height, false);
+    }
 
+    public TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl(TwoDimensionPosition hooverStartingPoint, Set<TwoDimensionPosition> dirtPatches, int width, int height, boolean resetBoardAfterRoute) throws RoomException {
         //we can't recover from bad dimensions
         //element construction will fail
         if (!TwoDimensionRoomUtils.calculateValidRoomDimension(width)) {
@@ -51,6 +55,7 @@ public class TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl implements T
             throw new RoomException("Could not init Room. The given room exceeds the maximum allowed room size of "+MAX_ALLOWED_ROOM_SIZE+" floor tiles");
         }
 
+        this.resetBoardAfterRoute = resetBoardAfterRoute;
         this.width = width;
         this.height = height;
         this.room = new TileType[width][height];
@@ -107,7 +112,10 @@ public class TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl implements T
         System.out.println("Starting from:"+ this.hooverStartingPoint);
         int numOfTilesCleaned = 0;
         if (this.room[this.hooverStartingPoint.x()][this.hooverStartingPoint.y()] == TileType.PATCH) {
-            cleanedTiles.add(this.hooverStartingPoint);
+            if (this.resetBoardAfterRoute) {
+                cleanedTiles.add(this.hooverStartingPoint);
+            }
+            this.room[this.hooverStartingPoint.x()][this.hooverStartingPoint.y()] = TileType.PLAIN;
             System.out.println("Hoover's starting point fell into a patch, the patch is cleaned");
             numOfTilesCleaned++;
         }
@@ -132,14 +140,23 @@ public class TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl implements T
                 System.out.println("Hoover hit a wall and cannot move further:" + nextPoint);
             }
 
-            if (this.room[nextPoint.x()][nextPoint.y()] == TileType.PATCH
-                    && !cleanedTiles.contains(nextPoint)) {
-
-                cleanedTiles.add(nextPoint);
+            if (this.room[nextPoint.x()][nextPoint.y()] == TileType.PATCH) {
+                this.room[nextPoint.x()][nextPoint.y()] = TileType.PLAIN;
+                if (this.resetBoardAfterRoute) {
+                    cleanedTiles.add(nextPoint);
+                }
                 System.out.println("Cleaning  :" + nextPoint);
                 numOfTilesCleaned++;
             }
             currentPoint = nextPoint;
+        }
+
+        //reset board
+        if (this.resetBoardAfterRoute) {
+            System.out.println("reseting board");
+            for (var tile : cleanedTiles) {
+                this.room[tile.x()][tile.y()] = TileType.PATCH;
+            }
         }
 
         return new CalculateRouteInstructionsResponse(currentPoint, numOfTilesCleaned);

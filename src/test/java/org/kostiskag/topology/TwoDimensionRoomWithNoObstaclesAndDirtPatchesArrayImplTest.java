@@ -41,9 +41,15 @@ public class TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImplTest {
 
         TwoDimensionRoomWithNoObstaclesAndDirtPatches room = null;
         try {
-            room = new TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl(start, tiles, 10, 500_000);
+            room = new TwoDimensionRoomWithNoObstaclesAndDirtPatchesArrayImpl(start, tiles, 10, 500_000, true);
 
             CalculateRouteInstructionsResponse result = room.calculateRouteInstructions("EWNNNNEEEE");
+            System.out.println(result.toJson());
+
+            result = room.calculateRouteInstructions("EWNNNNEEEE");
+            System.out.println(result.toJson());
+
+            result = room.calculateRouteInstructions("WWWW");
             System.out.println(result.toJson());
 
             result = room.calculateRouteInstructions("WWWW");
